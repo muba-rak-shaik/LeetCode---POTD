@@ -2,8 +2,6 @@ You have n dice, and each die has k faces numbered from 1 to k.
 
 Given three integers n, k, and target, return the number of possible ways (out of the kn total ways) to roll the dice, so the sum of the face-up numbers equals target. Since the answer may be too large, return it modulo 109 + 7.
 
- 
-
 Example 1:
 
 Input: n = 1, k = 6, target = 3
@@ -27,3 +25,38 @@ Constraints:
 
 1 <= n, k <= 30
 1 <= target <= 1000
+
+### Solution in Python3: ###
+
+class Solution:
+    # Class variable to store the modulo value
+    mod = 10 ** 9 + 7
+
+    def numRollsToTarget(self, n: int, k: int, target: int) -> int:
+        # Initialize a 2D array for memoization with -1
+        dp = [[-1] * (target + 1) for _ in range(n + 1)]
+        
+        # Call the recursive function and return the result
+        return self.recursion(dp, n, k, target)
+
+    def recursion(self, dp: list, n: int, k: int, target: int) -> int:
+        # Base case: If both the number of rolls and target become zero, return 1 (successful roll)
+        if target == 0 and n == 0:
+            return 1
+        # Base case: If either the number of rolls becomes zero or target is non-positive, return 0 (invalid)
+        if n == 0 or target <= 0:
+            return 0
+        # If the result for the current state is already memoized, return it
+        if dp[n][target] != -1:
+            return dp[n][target] % self.mod
+
+        # Initialize a variable to store the number of ways to reach the target
+        ways = 0
+        # Iterate through all possible outcomes of a single roll (from 1 to k)
+        for i in range(1, k + 1):
+            # Recursively calculate the number of ways to reach the target with n-1 rolls and reduced target
+            ways = (ways + self.recursion(dp, n - 1, k, target - i)) % self.mod
+
+        # Memoize the result and return it
+        dp[n][target] = ways % self.mod
+        return dp[n][target]
